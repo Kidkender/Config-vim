@@ -12,15 +12,17 @@ set autoindent              " indent a new line the same amount as the line just
 set number                  " add line numbers
 set wildmode=longest,list   " get bash-like tab completions
 set cc=80                  " set an 80 column border for good coding style
+" set cc=80                  " set an 80 column border for good coding style
 filetype plugin indent on   "allow auto-indenting depending on file type
 syntax on                   " syntax highlighting
+set foldmethod=syntax
 set mouse=a                 " enable mouse click
 set clipboard=unnamedplus   " using system clipboard
 filetype plugin on
 set cursorline              " highlight current cursorline
 set ttyfast                 " Speed up scrolling in Vim
 set shada+=!
-set shada+=1000   " Adjust the size as needed
+set shada='1000   " Adjust the size as needed
 
 
 " set spell                 " enable spell check (may need to download language package)
@@ -32,8 +34,7 @@ call plug#begin('~/AppData/Local/nvim/plugged')
 
 " Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
 
-Plug 'hrsh7th/nvim-cmp'
-
+Plug 'neovim/nvim-lspconfig'
 Plug 'junegunn/vim-easy-align'
 Plug 'preservim/nerdcommenter'
 Plug 'rust-lang/rust.vim'
@@ -69,7 +70,7 @@ Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'rust-analyzer/rust-analyzer', {'do': './scripts/install.sh'}
 
-# New
+" New
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'windwp/nvim-autopairs'
 Plug 'numToStr/Comment.nvim'
@@ -80,7 +81,6 @@ Plug 'hrsh7th/vim-vsnip-integ'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-buffer'
-Plug 'neovim/nvim-lspconfig'
 Plug 'simrat39/rust-tools.nvim'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
@@ -90,15 +90,15 @@ Plug 'stevearc/dressing.nvim'
 Plug 'ziontee113/icon-picker.nvim'
 Plug 'okuuva/auto-save.nvim'
 
+Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
 call plug#end()
 
-
 filetype plugin on
-# Set icon
+" Set icon
 lua << EOF
 require("icon-picker").setup({ disable_legacy_commands = true })
 EOF
-# Auto save
+" Auto save
 lua << EOF
   require("auto-save").setup {
     -- your config goes here
@@ -147,15 +147,15 @@ let g:NERDTreeGitStatusWithFlags = 1
 let g:WebDevIconsUnicodeDecorateFolderNodes = 1
 let g:NERDTreeGitStatusNodeColorization = 1
 let g:NERDTreeColorMapCustom = {
-    "\ "Staged"    : "#0ee375",  
-    "\ "Modified"  : "#d9bf91",  
-    "\ "Renamed"   : "#51C9FC",  
-    "\ "Untracked" : "#FCE77C",  
-    "\ "Unmerged"  : "#FC51E6",  
-    "\ "Dirty"     : "#FFBD61",  
-    "\ "Clean"     : "#87939A",   
-    "\ "Ignored"   : "#808080"
-"}                         
+    \ 'Staged'    : '#0ee375',
+    \ 'Modified'  : '#d9bf91',
+    \ 'Renamed'   : '#51C9FC',
+    \ 'Untracked' : '#FCE77C',
+    \ 'Unmerged'  : '#FC51E6',
+    \ 'Dirty'     : '#FFBD61',
+    \ 'Clean'     : '#87939A',
+    \ 'Ignored'   : '#808080'
+\ }      
 
 
 let g:NERDTreeIgnore = ['^node_modules$']
@@ -252,15 +252,178 @@ lua <<EOF
 local nvim_lsp = require'lspconfig'
 
 local opts = {
-    tools = { -- rust-tools options
-        autoSetHints = true,
-        hover_with_actions = true,
-        inlay_hints = {
-            show_parameter_hints = false,
-            parameter_hints_prefix = "",
-            other_hints_prefix = "",
-        },
+ tools = { -- rust-tools options
+
+    -- how to execute terminal commands
+    -- options right now: termopen / quickfix / toggleterm / vimux
+    executor = require("rust-tools.executors").termopen,
+
+    -- callback to execute once rust-analyzer is done initializing the workspace
+    -- The callback receives one parameter indicating the `health` of the server: "ok" | "warning" | "error"
+    on_initialized = nil,
+
+    -- automatically call RustReloadWorkspace when writing to a Cargo.toml file.
+    reload_workspace_from_cargo_toml = true,
+
+    -- These apply to the default RustSetInlayHints command
+    inlay_hints = {
+      -- automatically set inlay hints (type hints)
+      -- default: true
+      auto = true,
+
+      -- Only show inlay hints for the current line
+      only_current_line = false,
+
+      -- whether to show parameter hints with the inlay hints or not
+      -- default: true
+      show_parameter_hints = true,
+
+      -- prefix for parameter hints
+      -- default: "<-"
+      parameter_hints_prefix = "<- ",
+
+      -- prefix for all the other hints (type, chaining)
+      -- default: "=>"
+      other_hints_prefix = "=> ",
+
+      -- whether to align to the length of the longest line in the file
+      max_len_align = false,
+
+      -- padding from the left if max_len_align is true
+      max_len_align_padding = 1,
+
+      -- whether to align to the extreme right or not
+      right_align = false,
+
+      -- padding from the right if right_align is true
+      right_align_padding = 7,
+
+      -- The color of the hints
+      highlight = "Comment",
     },
+
+    -- options same as lsp hover / vim.lsp.util.open_floating_preview()
+    hover_actions = {
+
+      -- the border that is used for the hover window
+      -- see vim.api.nvim_open_win()
+      border = {
+        { "╭", "FloatBorder" },
+        { "─", "FloatBorder" },
+        { "╮", "FloatBorder" },
+        { "│", "FloatBorder" },
+        { "╯", "FloatBorder" },
+        { "─", "FloatBorder" },
+        { "╰", "FloatBorder" },
+        { "│", "FloatBorder" },
+      },
+
+      -- Maximal width of the hover window. Nil means no max.
+      max_width = nil,
+
+      -- Maximal height of the hover window. Nil means no max.
+      max_height = nil,
+
+      -- whether the hover action window gets automatically focused
+      -- default: false
+      auto_focus = false,
+    },
+
+    -- settings for showing the crate graph based on graphviz and the dot
+    -- command
+    crate_graph = {
+      -- Backend used for displaying the graph
+      -- see: https://graphviz.org/docs/outputs/
+      -- default: x11
+      backend = "x11",
+      -- where to store the output, nil for no output stored (relative
+      -- path from pwd)
+      -- default: nil
+      output = nil,
+      -- true for all crates.io and external crates, false only the local
+      -- crates
+      -- default: true
+      full = true,
+
+      -- List of backends found on: https://graphviz.org/docs/outputs/
+      -- Is used for input validation and autocompletion
+      -- Last updated: 2021-08-26
+      enabled_graphviz_backends = {
+        "bmp",
+        "cgimage",
+        "canon",
+        "dot",
+        "gv",
+        "xdot",
+        "xdot1.2",
+        "xdot1.4",
+        "eps",
+        "exr",
+        "fig",
+        "gd",
+        "gd2",
+        "gif",
+        "gtk",
+        "ico",
+        "cmap",
+        "ismap",
+        "imap",
+        "cmapx",
+        "imap_np",
+        "cmapx_np",
+        "jpg",
+        "jpeg",
+        "jpe",
+        "jp2",
+        "json",
+        "json0",
+        "dot_json",
+        "xdot_json",
+        "pdf",
+        "pic",
+        "pct",
+        "pict",
+        "plain",
+        "plain-ext",
+        "png",
+        "pov",
+        "ps",
+        "ps2",
+        "psd",
+        "sgi",
+        "svg",
+        "svgz",
+        "tga",
+        "tiff",
+        "tif",
+        "tk",
+        "vml",
+        "vmlz",
+        "wbmp",
+        "webp",
+        "xlib",
+        "x11",
+      },
+    },
+  },
+
+  -- all the opts to send to nvim-lspconfig
+  -- these override the defaults set by rust-tools.nvim
+  -- see https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#rust_analyzer
+  server = {
+    -- standalone file support
+    -- setting it to false may improve startup time
+    standalone = true,
+  }, -- rust-analyzer options
+
+  -- debugging stuff
+  dap = {
+    adapter = {
+      type = "executable",
+      command = "lldb-vscode",
+      name = "rt_lldb",
+    },
+  },
 
     -- all the opts to send to nvim-lspconfig
     -- these override the defaults set by rust-tools.nvim
@@ -333,4 +496,65 @@ nnoremap <silent> g0    <cmd>lua vim.lsp.buf.document_symbol()<CR>
 nnoremap <silent> gW    <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
 nnoremap <silent> gd    <cmd>lua vim.lsp.buf.definition()<CR>
 
+if executable('rust-analyzer')
+  au User lsp_setup call lsp#register_server({
+        \   'name': 'Rust Language Server',
+        \   'cmd': {server_info->['rust-analyzer']},
+        \   'whitelist': ['rust'],
+        \ })
+endif
 
+" Auto change the directory to the current file I'm working on
+autocmd BufEnter * lcd %:p:h
+
+" Switch tabs 
+nnoremap <C-Left> : tabprevious<CR>
+nnoremap <C-Right> : tabnext<CR>
+
+lua require("toggleterm").setup()
+
+
+" Initialize packer if not already installed
+if empty(glob('~/.local/share/nvim/site/pack/packer/start/packer.nvim'))
+    silent !git clone --depth 1 https://github.com/wbthomason/packer.nvim \
+    ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+    autocmd VimEnter * PackerSync
+endif
+
+" Load packer.nvim
+packadd packer.nvim
+
+" Initialize packer and install plugins
+lua << EOF
+require('packer').startup(function(use)
+    use 'wbthomason/packer.nvim' -- Packer can manage itself
+    use 'akinsho/toggleterm.nvim'
+end)
+EOF
+
+" Configure toggleterm and lazygit
+lua << EOF
+local Terminal  = require('toggleterm.terminal').Terminal
+
+local lazygit = Terminal:new({
+  cmd = "lazygit",
+  dir = "git_dir",
+  direction = "float",
+  float_opts = {
+    border = "double",
+  },
+  on_open = function(term)
+    vim.cmd("startinsert!")
+    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+  end,
+  on_close = function(term)
+    vim.cmd("startinsert!")
+  end,
+})
+
+function _lazygit_toggle()
+  lazygit:toggle()
+end
+
+vim.api.nvim_set_keymap("n", "<leader>g", "<cmd>lua _lazygit_toggle()<CR>", {noremap = true, silent = true})
+EOF
