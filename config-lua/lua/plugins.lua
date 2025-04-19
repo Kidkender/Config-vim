@@ -32,7 +32,7 @@ return {
     end
    },
 
-  -- LSP
+    -- LSP
     {
         "neovim/nvim-lspconfig",
         event = { "BufReadPre", "BufNewFile" },
@@ -46,7 +46,6 @@ return {
         end  
 
     },
-
 
     -- cmp: Autocomplete
     {
@@ -117,5 +116,92 @@ return {
     { "hrsh7th/vim-vsnip-integ"},
     { "hrsh7th/cmp-path"},
     { "hrsh7th/cmp-buffer"},
+
+    -- Neotree
+    {
+      "nvim-neo-tree/neo-tree.nvim",
+      dependencies = {
+            "nvim-lua/plenary.nvim",
+            "nvim-tree/nvim-web-devicons",
+            "MunifTanjim/nui.nvim",
+        },
+      deactivate = function()
+        vim.cmd([[Neotree close]])
+      end,
+      init = function()
+        vim.api.nvim_create_autocmd("BufEnter", {
+          group = vim.api.nvim_create_augroup("Neotree_start_directory", { clear = true }),
+          desc = "Start Neo-tree with directory",
+          once = true,
+          callback = function()
+            if package.loaded["neo-tree"] then
+              return
+            else
+              local stats = vim.uv.fs_stat(vim.fn.argv(0))
+              if stats and stats.type == "directory" then
+                require("neo-tree")
+                vim.cmd("Neotree show")
+              end
+            end
+          end,
+        })
+      end,
+      config = function(_, opts) 
+        require("configs.neo-tree")(opts)
+      end,
+    },
+    -- Telescope
+    {
+      "nvim-telescope/telescope.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-telescope/telescope-fzf-native.nvim",  
+      },
+      config = function() 
+        require("configs.telescope")
+      end,
+    },
+
+    --Luasnip
+    {
+      "L3MON4D3/LuaSnip",
+      lazy = true,
+      dependencies = {
+        {
+          "rafamadriz/friendly-snippets",
+          config = function()
+            require("luasnip.loaders.from_vscode").lazy_load()
+            require("luasnip.loaders.from_vscode").lazy_load({ paths = { vim.fn.stdpath("config") .. "/snippets" } })
+          end,
+        },
+      },
+      opts = {
+        history = true,
+        delete_check_events = "TextChanged",
+      },
+    },
+
+    -- Git
+    {
+      "lewis6991/gitsigns.nvim",
+      event = {"BufReadPre", "BufNewFile"},
+      config = function()
+        require("configs.gitsigns")
+      end,
+    },
+
+    {
+      "kdheepak/lazygit.nvim",
+      lazy = true,
+      cmd = {
+        "LazyGit",
+        "LazyGitConfig",
+        "LazyGitCurrentFile",
+        "LazyGitFilter",
+        "LazyGitFilterCurrentFile",
+    },
+    }
+    
+
 
 }

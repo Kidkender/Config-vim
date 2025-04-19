@@ -8,5 +8,10 @@ return {
         "tsserver",
         "pyright",
         "tailwindcss",
+        "goimports", 
+        "gofumpt",
+        "gomodifytags",
+        "impl",
+        "delve"
     },
 }

@@ -27,7 +27,11 @@ return {
       "c_sharp",
       "toml",
       "markdown",
-      "markdown_inline"
+      "markdown_inline",
+      "go", 
+      "gomod", 
+      "gowork", 
+      "gosum"
     },
 
      -- Advanced features
