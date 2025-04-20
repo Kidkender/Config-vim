@@ -23,7 +23,7 @@ o.shiftwidth = 4
 o.autoindent = true  -- Added missing = true
 o.number = true
 o.wildmode = "longest,list"  -- Added quotes and proper spacing
--- o.colorcolumn = "80"  -- Correct alternative for 'set cc=80'
+o.colorcolumn = "80"  -- Correct alternative for 'set cc=80'
 o.foldmethod = "syntax"  -- Added proper spacing
 o.mouse = "a"
 o.clipboard = "unnamedplus"  -- Added quotes

@@ -5,13 +5,13 @@ return {
         "eslint",
         "html",
         "jsonls",
-        "tsserver",
+        "ts_ls",
         "pyright",
         "tailwindcss",
         "goimports", 
         "gofumpt",
         "gomodifytags",
         "impl",
-        "delve"
+        "delve",
     },
 }

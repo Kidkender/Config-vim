@@ -1,7 +1,6 @@
 return {
-
     { "folke/lazy.nvim", version = "*" },
-    
+   
     {
         "rebelot/kanagawa.nvim",
         lazy = false,
@@ -46,11 +45,20 @@ return {
         end  
 
     },
-
-    -- cmp: Autocomplete
+    
+    -- <F7>
+    {"onsails/lspkind-nvim"},
+    { "hrsh7th/cmp-cmdline" },
+        
     {
         "hrsh7th/nvim-cmp",
+        lazy = false,
         event = "InsertEnter",
+        dependencies = {
+            "hrsh7th/cmp-nvim-lsp",
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-path",
+        },
         config = function()
             require("configs.cmp")
         end,
@@ -110,12 +118,11 @@ return {
             require("configs.toggleterm")
         end,
     },
-    
+
     -- hrsh7th
-    { "hrsh7th/vim-vsnip"},
+    -- { "hrsh7th/vim-vsnip"},
     { "hrsh7th/vim-vsnip-integ"},
-    { "hrsh7th/cmp-path"},
-    { "hrsh7th/cmp-buffer"},
+    -- { "saadparwaiz1/cmp_luasnip" },
 
     -- Neotree
     {
@@ -199,9 +206,7 @@ return {
         "LazyGitCurrentFile",
         "LazyGitFilter",
         "LazyGitFilterCurrentFile",
-    },
+      },
     }
     
-
-
 }
